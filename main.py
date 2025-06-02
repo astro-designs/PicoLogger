@@ -42,9 +42,9 @@ import logging
 # ***************************************
 # Pin configuration
 # ***************************************
-sensor_temp = machine.ADC(4)                    # Internal temperature sensor I/O ref
-sensor_USB5V = machine.ADC(27)                  # Internal 5V ADC I/O ref
-sensor_voltage = machine.ADC(28)                # External voltage sense I/O ref
+#sensor_temp = machine.ADC(4)                    # Internal temperature sensor I/O ref
+#sensor_USB5V = machine.ADC(27)                  # Internal 5V ADC I/O ref
+#sensor_voltage = machine.ADC(28)                # External voltage sense I/O ref
 
 # ***************************************
 # Device configuration
@@ -73,6 +73,15 @@ def DebugLog(logString, PrintThreshold = 1, LogThreshold = 999):
 # Setup Log to file function
 filename = 'log.csv'
 logging.basicConfig(filename=filename, level=logging.INFO, format='%(levelname)s,%(message)s')
+
+# Initialise analogue interface if used by any sensors
+if 'Analogue' in sensors.SensorType:
+    DebugLog("Initialising Analogue sensors")
+    sensor_alg = list(())
+    num_Alg_sensors = 0
+    for SensorID in range(sensors.ActiveSensors):
+        if sensors.SensorType[SensorID] == 'Analogue':
+            sensor_alg.append(machine.ADC(sensors.SensorLoc[SensorID]))
 
 # Initialise one-wire interface if used by any sensors
 if 'T1w' in sensors.SensorType:
@@ -149,42 +158,42 @@ if 'IOR' in sensors.SensorType:
     DebugLog("Initialising Rising Edge IO sensors")
     IOR_pins = list(())
     IOR_sts = list(())
-    num_IOR_sensors = 0
+    IOR_id = 0
     for SensorID in range(sensors.ActiveSensors):
         if sensors.SensorType[SensorID] == 'IOR':
             IOR_pins.append(machine.Pin(sensors.SensorLoc[SensorID], machine.Pin.IN))
             IOR_sts.append(0)
-            num_IOR_sensors = num_IOR_sensors + 1
+            IOR_pins[IOR_id].irq(trigger=machine.Pin.IRQ_RISING, handler=IOR_callback)
+            IOR_id = IOR_id + 1
 
-    DebugLog('Found ' + str(num_IOR_sensors) + ' IOR sensors')
+    DebugLog('Found ' + str(IOR_id) + ' IOR sensors')
 
 IOR_interrupt=0
 def IOR_callback(pin):
     global IOR_interrupt
     IOR_interrupt = 1
 
-IOR_pins[0].irq(trigger=machine.Pin.IRQ_RISING, handler=IOR_callback)
 
 # Initialise PIR sensor(s)
 if 'PIR' in sensors.SensorType:    
     DebugLog("Initialising PIR sensors")
     PIR_pins = list(())
     PIR_sts = list(())
-    num_PIR_sensors = 0
+    PIR_id = 0
     for SensorID in range(sensors.ActiveSensors):
         if sensors.SensorType[SensorID] == 'PIR':
             PIR_pins.append(machine.Pin(sensors.SensorLoc[SensorID], machine.Pin.IN))
             PIR_sts.append(0)
-            num_PIR_sensors = num_PIR_sensors + 1
+            PIR_pins[PIR_id].irq(trigger=machine.Pin.IRQ_RISING, handler=PIR_callback)
+            PIR_id = PIR_id + 1
 
-    DebugLog('Found ' + str(num_PIR_sensors) + ' PIR sensors')
+    DebugLog('Found ' + str(PIR_id) + ' PIR sensors')
 
 PIR_interrupt=0
 def PIR_callback(pin):
     global PIR_interrupt
     PIR_interrupt = 1
 
-PIR_pins[0].irq(trigger=machine.Pin.IRQ_RISING, handler=PIR_callback)
 
 # Initialise sensor data...
 SensorVal = list(())
@@ -201,6 +210,7 @@ domoticz_sts = 'OK'
 # Function to measure data...
 def MeasureData(NextMeasurementTime):
     global SensorVal, DHT11_sensors, IOR_interrupt, PIR_interrupt
+    Alg_id = 0
     T1w_id = 0
     DHTxx_id = 0
     IOR_id = 0
@@ -217,6 +227,16 @@ def MeasureData(NextMeasurementTime):
         blink_onboard_led(1)
 
         for SensorID in range(sensors.ActiveSensors):
+            if sensors.SensorType[SensorID] == 'Analogue':
+                try:
+                    adc_val = sensor_alg[Alg_id].read_u16()
+                    adc_voltage = conversion_factor * adc_val
+                    SensorVal[SensorID] = sensors.Sensor_A[SensorID] * (adc_voltage**2) + sensors.Sensor_B[SensorID] * adc_voltage + sensors.Sensor_C[SensorID]
+                    DebugLog('Alg[' + str(Alg_id) + ']: ' + str(SensorVal[SensorID]),1,0)
+                except:
+                    DebugLog('Alg_sensor[' + str(Alg_id) + '] did not respond',1,0)
+                Alg_id = Alg_id + 1
+                
             if sensors.SensorType[SensorID] == 'T1w':
                 try:
                     if T1w_id == 0:
@@ -432,51 +452,7 @@ while (wlan_status == 3):
     
         # Run logging routine...
         NextLogTime = LogData(NextLogTime)
-    
-    # Read the temperature sensor & calculate the temperature
-    #adc_temp = sensor_temp.read_u16()
-    #temperature = 27 - (adc_temp * conversion_factor - 0.706) / 0.001721
-    #print("Temperature: ", temperature)
-
-    # Read the internal voltage sensor & calculate the voltage
-    #adc_USB5V = sensor_USB5V.read_u16()
-    #voltage_USB5V = (adc_USB5V * conversion_factor * voltage_b) + voltage_c
-    #print("USB 5V: ", voltage_USB5V)
-
-    # Read the external voltage sensor & calculate the voltage
-    #adc_voltage = sensor_voltage.read_u16()
-    #voltage = (adc_voltage * conversion_factor * voltage_b) - voltage_c
-    #print("Voltage: ", voltage)
-
-    # Read the external one-wire temperature sensor
-    #ds_sensor.convert_temp()
-
-    #tempC_T2 = 0
-    #tempC_T3 = 0
-
-    #for rom in roms:
-    #    #print(rom)
-    #    if rom == devstr_T2:
-    #        tempC_T2 = ds_sensor.read_temp(rom)
-    #    elif rom == devstr_T3:
-    #        tempC_T3 = ds_sensor.read_temp(rom)
-    
-    #print('Temperature T2 (ºC):', "{:.2f}".format(tempC_T2))
-    #print('Temperature T3 (ºC):', "{:.2f}".format(tempC_T3))
-    
-    #time.sleep(loop_time)
-    #print('Logging...')
-    #if sensors.Domoticz_En:
-    #    log_response = domoticz.LogToDomoticz(domoticz_IDx_V1, voltage_USB5V)
-    #    if log_response == "Request sent!":
-    #        log_response = domoticz.LogToDomoticz(domoticz_IDx_V2, voltage)
-    #    if log_response == "Request sent!":
-    #        log_response = domoticz.LogToDomoticz(domoticz_IDx_T1, temperature)
-    #    if log_response == "Request sent!":
-    #        log_response = domoticz.LogToDomoticz(domoticz_IDx_T2, tempC_T2)
-    #    if log_response == "Request sent!":
-    #        log_response = domoticz.LogToDomoticz(domoticz_IDx_T3, tempC_T3)
-        
+            
     # Check log response in case there was a network error...
     if sensors.Domoticz_En and domoticz_sts != 'OK':
         wlan_status = 99 # Set wlan_status to 99 (or anything other than 3) to flag error

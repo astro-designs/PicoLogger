@@ -7,23 +7,23 @@ ModuleName = '[Enter a name...]'
 ModuleLoc = '[Enter a location...]'
 SensorName = ["Sensor1", "Sensor2", "Sensor3", "...", "Sensor255"]
 SensorType = ['Type1', 'Type2', 'Type3', '...', 'Type255']
+# 'T1w' = One-Wire Temperature Sensor 
+
+# The following are planned but not yet supported...
+# 'Analogue, = ADC reading
+# 'Counter_R' = Rising-Edge IO pulse counter
+# 'Counter_F' = Falling-Edge IO pulse counter
+# 'Int_Temp' = local / internal temperature
 # 'Throttle_Status' = CPU Throttle status (Current throttle status)
 # 'Throttle_Level' = CPU Throttle level (% time throttled)
-# 'Int_Temp' = local / internal temperature
-# 'T1w' = One-Wire Temperature Sensor 
-# 'LM75' = LM75 I2C Temperature Sensor
-# 'TPin' = Analogue Thermistor
 # 'Ping' = network ping success (%)
-# 'LDRPin' = Analogue Light Dependant Resistor
 # 'Electric_Whrs_import_today' = Electricity usage meter (daily)
 # 'Electric_kW' = Electricity usage meter (Watts now)
 # 'SolarPV_Whrs_gen_today' = Solar PV generation meter (daily)
 # 'SolarPV_W' = Solar PV generation meter (Watts now)
-# 'PIR' = Passive infra-red sensor
 # 'DHTxx_T' = DHT22 or DHT11 Temperature
 # 'DHTxx_H' = DHT22 or DHT11 Humidity
 # 'DHTxx_TH' = DHT22 or DHT11 Temperature
-# 'IOR' = Rising Edge IO Signal
 # 'PIR' = Passive Infrared sensor / motion sensor
 # 'Rain' = Rain sensor
 
