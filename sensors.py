@@ -8,9 +8,9 @@ ModuleLoc = '[Enter a location...]'
 SensorName = ["Sensor1", "Sensor2", "Sensor3", "...", "Sensor255"]
 SensorType = ['Type1', 'Type2', 'Type3', '...', 'Type255']
 # 'T1w' = One-Wire Temperature Sensor 
+# 'Analogue, = ADC reading
 
 # The following are planned but not yet supported...
-# 'Analogue, = ADC reading
 # 'Counter_R' = Rising-Edge IO pulse counter
 # 'Counter_F' = Falling-Edge IO pulse counter
 # 'Int_Temp' = local / internal temperature
