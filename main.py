@@ -154,6 +154,11 @@ if 'DHT22_TH' in sensors.SensorType:
     DebugLog('Found ' + str(len(DHTxx_sensors)) + ' DHT22 1-wire device(s)')
 
 # Initialise IOR sensor(s)
+IOR_interrupt=0
+def IOR_callback(pin):
+    global IOR_interrupt
+    IOR_interrupt = 1
+
 if 'IOR' in sensors.SensorType:    
     DebugLog("Initialising Rising Edge IO sensors")
     IOR_pins = list(())
@@ -168,13 +173,13 @@ if 'IOR' in sensors.SensorType:
 
     DebugLog('Found ' + str(IOR_id) + ' IOR sensors')
 
-IOR_interrupt=0
-def IOR_callback(pin):
-    global IOR_interrupt
-    IOR_interrupt = 1
-
 
 # Initialise PIR sensor(s)
+PIR_interrupt=0
+def PIR_callback(pin):
+    global PIR_interrupt
+    PIR_interrupt = 1
+
 if 'PIR' in sensors.SensorType:    
     DebugLog("Initialising PIR sensors")
     PIR_pins = list(())
@@ -188,11 +193,6 @@ if 'PIR' in sensors.SensorType:
             PIR_id = PIR_id + 1
 
     DebugLog('Found ' + str(PIR_id) + ' PIR sensors')
-
-PIR_interrupt=0
-def PIR_callback(pin):
-    global PIR_interrupt
-    PIR_interrupt = 1
 
 
 # Initialise sensor data...

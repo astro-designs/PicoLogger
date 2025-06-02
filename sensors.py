@@ -9,6 +9,7 @@ SensorName = ["Sensor1", "Sensor2", "Sensor3", "...", "Sensor255"]
 SensorType = ['Type1', 'Type2', 'Type3', '...', 'Type255']
 # 'T1w' = One-Wire Temperature Sensor 
 # 'Analogue, = ADC reading
+# 'PIR' = Passive Infrared sensor / motion sensor
 
 # The following are planned but not yet supported...
 # 'Counter_R' = Rising-Edge IO pulse counter
@@ -24,7 +25,6 @@ SensorType = ['Type1', 'Type2', 'Type3', '...', 'Type255']
 # 'DHTxx_T' = DHT22 or DHT11 Temperature
 # 'DHTxx_H' = DHT22 or DHT11 Humidity
 # 'DHTxx_TH' = DHT22 or DHT11 Temperature
-# 'PIR' = Passive Infrared sensor / motion sensor
 # 'Rain' = Rain sensor
 
 SensorLoc = [1, 2, 3, 4, 255]
